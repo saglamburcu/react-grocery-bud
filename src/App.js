@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import ListItem from "./ListItem";
 import Alert from "./Alert";
 
+const getItem = localStorage.getItem("list");
+
 function App() {
   const [value, setValue] = useState("");
-  const [list, setList] = useState([]);
+  const [list, setList] = useState(getItem ? JSON.parse(getItem) : []);
   const [isEditing, setIsEditing] = useState(false);
   const [editID, setEditID] = useState(null);
   const [alert, setAlert] = useState({ show: false, message: "", type: "" });
@@ -22,6 +24,7 @@ function App() {
 
       setIsEditing(false);
       showAlert({ show: true, message: "Value Changed", type: "success" });
+      setValue("");
 
     } else if (value) {
       let newItem = { id: new Date().getTime(), info: value };
@@ -34,6 +37,10 @@ function App() {
     }
 
   }
+
+  useEffect(() => {
+    localStorage.setItem("list", JSON.stringify(list))
+  }, [list])
 
   const showAlert = (show = false, message = "", type = "") => {
     setAlert(show, message, type)
@@ -49,6 +56,7 @@ function App() {
   const deleteItem = (id) => {
     const filterItem = list.filter(item => item.id !== id);
     setList(filterItem);
+    showAlert({ show: true, message: "Item Removed", type: "danger" })
   }
 
   const onClearItems = () => {
